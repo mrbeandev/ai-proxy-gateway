@@ -13,17 +13,20 @@ router.get('/', (_req, res) => {
 })
 
 router.post('/', (req, res) => {
-  const { name, provider, api_key, base_url } = req.body
+  const { name, provider, api_key, base_url, account_id } = req.body
   if (!name || !provider || !api_key) {
     return res.status(400).json({ error: 'name, provider, and api_key are required' })
+  }
+  if (provider === 'cloudflare' && !account_id && !base_url) {
+    return res.status(400).json({ error: 'account_id is required for Cloudflare Workers AI' })
   }
   const db = getDb()
   const id = uuidv4()
   const now = Date.now()
   db.prepare(`
-    INSERT INTO services (id, name, provider, api_key, base_url, enabled, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, 1, ?, ?)
-  `).run(id, name, provider, api_key, base_url || null, now, now)
+    INSERT INTO services (id, name, provider, api_key, base_url, account_id, enabled, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
+  `).run(id, name, provider, api_key, base_url || null, account_id || null, now, now)
   seedModelsForService(db, id, provider)
   const service = db.prepare('SELECT * FROM services WHERE id = ?').get(id) as Service
   res.status(201).json({ ...service, api_key: '***' + service.api_key.slice(-4) })
@@ -35,7 +38,7 @@ router.put('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM services WHERE id = ?').get(id) as Service | undefined
   if (!existing) return res.status(404).json({ error: 'Service not found' })
 
-  const { name, provider, api_key, base_url, enabled } = req.body
+  const { name, provider, api_key, base_url, account_id, enabled } = req.body
   const now = Date.now()
   db.prepare(`
     UPDATE services SET
@@ -43,6 +46,7 @@ router.put('/:id', (req, res) => {
       provider = ?,
       api_key = ?,
       base_url = ?,
+      account_id = ?,
       enabled = ?,
       updated_at = ?
     WHERE id = ?
@@ -51,6 +55,7 @@ router.put('/:id', (req, res) => {
     provider ?? existing.provider,
     api_key || existing.api_key,
     base_url !== undefined ? base_url : existing.base_url,
+    account_id !== undefined ? (account_id || null) : (existing.account_id ?? null),
     enabled !== undefined ? enabled : existing.enabled,
     now,
     id

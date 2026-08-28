@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { api } from '@/lib/api'
 import { formatLatency, formatCost, timeAgo, providerColor, providerIcon, providerLabel } from '@/lib/utils'
+import { ProviderLogo } from '@/components/ProviderLogo'
 
 function ProviderDot({ provider }: { provider: string }) {
   const icon = providerIcon(provider)
@@ -146,10 +147,11 @@ export default function Logs() {
           <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Providers</SelectItem>
-            <SelectItem value="openai"><span className="flex items-center gap-2"><img src="/openai.svg" alt="" className="h-3.5 w-3.5" />OpenAI</span></SelectItem>
-            <SelectItem value="anthropic"><span className="flex items-center gap-2"><img src="/claude.svg" alt="" className="h-3.5 w-3.5" />Anthropic</span></SelectItem>
-            <SelectItem value="gemini"><span className="flex items-center gap-2"><img src="/gemini.svg" alt="" className="h-3.5 w-3.5" />Gemini</span></SelectItem>
-            <SelectItem value="deepseek"><span className="flex items-center gap-2"><img src="/deepseek.svg" alt="" className="h-3.5 w-3.5" />DeepSeek</span></SelectItem>
+            <SelectItem value="openai"><span className="flex items-center gap-2"><ProviderLogo provider="openai" className="h-3.5 w-3.5" />OpenAI</span></SelectItem>
+            <SelectItem value="anthropic"><span className="flex items-center gap-2"><ProviderLogo provider="anthropic" className="h-3.5 w-3.5" />Anthropic</span></SelectItem>
+            <SelectItem value="gemini"><span className="flex items-center gap-2"><ProviderLogo provider="gemini" className="h-3.5 w-3.5" />Gemini</span></SelectItem>
+            <SelectItem value="deepseek"><span className="flex items-center gap-2"><ProviderLogo provider="deepseek" className="h-3.5 w-3.5" />DeepSeek</span></SelectItem>
+            <SelectItem value="cloudflare"><span className="flex items-center gap-2"><ProviderLogo provider="cloudflare" className="h-3.5 w-3.5" />Cloudflare</span></SelectItem>
           </SelectContent>
         </Select>
         <Select value={filters.status || 'all'} onValueChange={v => setFilter('status', v === 'all' ? '' : (v ?? ''))}>

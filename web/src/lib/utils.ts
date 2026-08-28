@@ -39,8 +39,18 @@ export function providerColor(provider: string): string {
     case 'anthropic': return 'var(--color-anthropic)'
     case 'gemini': return 'var(--color-gemini)'
     case 'deepseek': return 'var(--color-deepseek)'
+    case 'cloudflare': return 'var(--color-cloudflare)'
     default: return '#888'
   }
+}
+
+/**
+ * Providers whose logo is a monochrome mark with no brand colour of its own.
+ * These are rendered via CSS mask + `bg-current` so they follow the theme
+ * (near-black in light mode, near-white in dark mode).
+ */
+export function isMonochromeProvider(provider: string): boolean {
+  return provider === 'openai'
 }
 
 export function providerIcon(provider: string): string | null {
@@ -49,6 +59,7 @@ export function providerIcon(provider: string): string | null {
     case 'anthropic': return '/claude.svg'
     case 'gemini': return '/gemini.svg'
     case 'deepseek': return '/deepseek.svg'
+    case 'cloudflare': return '/cloudflare.svg'
     default: return null
   }
 }
@@ -59,6 +70,7 @@ export function providerLabel(provider: string): string {
     case 'anthropic': return 'Claude'
     case 'gemini': return 'Gemini'
     case 'deepseek': return 'DeepSeek'
+    case 'cloudflare': return 'Cloudflare'
     default: return provider
   }
 }

@@ -1,0 +1,9 @@
+[
+  {
+    "date": "2026-01-15",
+    "macrostructure": "Workbench",
+    "theme": "Neural Canvas (design.md)",
+    "enrichment": "none — d3 data visualisation",
+    "brief": "ai-proxy-gateway · dashboard: replace Highcharts + Top Models table with d3 charts"
+  }
+]

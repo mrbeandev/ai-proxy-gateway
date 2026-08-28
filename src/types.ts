@@ -1,4 +1,4 @@
-export type Provider = 'openai' | 'anthropic' | 'gemini' | 'deepseek'
+export type Provider = 'openai' | 'anthropic' | 'gemini' | 'deepseek' | 'cloudflare'
 
 export interface Service {
   id: string
@@ -6,6 +6,8 @@ export interface Service {
   provider: Provider
   api_key: string
   base_url: string | null
+  /** Cloudflare Workers AI account id (unused by other providers) */
+  account_id?: string | null
   enabled: number
   created_at: number
   updated_at: number

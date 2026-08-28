@@ -3,6 +3,7 @@ import { getDb } from './db'
 import { proxyOpenAI } from './providers/openai'
 import { proxyAnthropic } from './providers/anthropic'
 import { proxyGemini } from './providers/gemini'
+import { proxyCloudflare, CLOUDFLARE_DEFAULT_BASE_URL } from './providers/cloudflare'
 import { v4 as uuidv4 } from 'uuid'
 import type { Service, OpenAIChatRequest } from '../types'
 
@@ -13,7 +14,7 @@ function getServiceForModel(model: string): { service: Service; resolvedModel: s
 
   // Check model aliases first
   const alias = db.prepare(`
-    SELECT ma.*, s.api_key, s.base_url, s.provider, s.enabled
+    SELECT ma.*, s.api_key, s.base_url, s.account_id, s.provider, s.enabled
     FROM model_aliases ma
     JOIN services s ON ma.service_id = s.id
     WHERE ma.alias = ? AND s.enabled = 1
@@ -27,6 +28,7 @@ function getServiceForModel(model: string): { service: Service; resolvedModel: s
         provider: alias.provider,
         api_key: alias.api_key,
         base_url: alias.base_url,
+        account_id: alias.account_id,
         enabled: alias.enabled,
         created_at: alias.created_at,
         updated_at: alias.updated_at,
@@ -55,6 +57,8 @@ function getServiceForModel(model: string): { service: Service; resolvedModel: s
     provider = 'gemini'
   } else if (model.startsWith('deepseek-')) {
     provider = 'deepseek'
+  } else if (model.startsWith('@cf/')) {
+    provider = 'cloudflare'
   }
 
   if (!provider) return null
@@ -246,6 +250,9 @@ async function dispatch(
     case 'deepseek':
       // DeepSeek's API is OpenAI-compatible (POST /v1/chat/completions, Bearer auth, SSE).
       return proxyOpenAI(chatReq, service.api_key, baseUrl, res as any)
+    case 'cloudflare':
+      // Workers AI OpenAI-compatible endpoint, scoped to an account id.
+      return proxyCloudflare(chatReq, service.api_key, baseUrl, service.account_id, res as any)
     default:
       throw new Error(`Unknown provider: ${service.provider}`)
   }
@@ -257,6 +264,7 @@ function getDefaultBaseUrl(provider: string): string {
     case 'anthropic': return 'https://api.anthropic.com'
     case 'gemini': return 'https://generativelanguage.googleapis.com'
     case 'deepseek': return 'https://api.deepseek.com'
+    case 'cloudflare': return CLOUDFLARE_DEFAULT_BASE_URL
     default: return ''
   }
 }

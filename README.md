@@ -61,10 +61,11 @@ There are proxy tools like LiteLLM, but they require Python, config files, envir
 ## Features
 
 - **OpenAI-Compatible Proxy** — `/v1/chat/completions` and `/v1/models` endpoints with full streaming (SSE) support
-- **Multi-Provider Routing** — automatically routes `gpt-*` → OpenAI, `claude-*` → Anthropic, `gemini-*` → Google Gemini, `deepseek-*` → DeepSeek
+- **Multi-Provider Routing** — automatically routes `gpt-*` → OpenAI, `claude-*` → Anthropic, `gemini-*` → Google Gemini, `deepseek-*` → DeepSeek, `@cf/*` → Cloudflare Workers AI
 - **Dynamic Model Management** — add, remove, or auto-fetch models from each provider's API
 - **Model Aliases** — create custom names like `fast` → `gpt-4o-mini` or `smart` → `claude-sonnet-4`
-- **Dashboard** — real-time stats, request volume charts, top models breakdown, recent activity feed
+- **Dashboard** — real-time stats with d3 charts: request volume, provider split, activity heatmap, top models
+- **Playground** — a scratch chat to test any service/model end-to-end, with streaming, latency and token counts
 - **Request Logging** — every proxied request is logged with input/output tokens, latency, cost, and status
 - **Cost Tracking** — automatic cost estimation with customizable per-model pricing
 - **Service Management** — add, edit, enable/disable AI providers through the UI
@@ -98,7 +99,13 @@ The gateway starts on port **4141** by default. Your browser opens to the dashbo
 
 ### Use It
 
-Point any OpenAI-compatible client at `http://localhost:4141/v1`:
+The quickest check is the **Playground** tab in the dashboard — pick a model, send
+a prompt, and confirm the service works before wiring up a client. It streams
+through the same `/v1` path an external client uses, so anything you send there
+also shows up in Logs.
+
+To use it from your tools, point any OpenAI-compatible client at
+`http://localhost:4141/v1`:
 
 **Claude Code:**
 ```bash
@@ -169,6 +176,7 @@ Requests are routed by model name prefix:
 | `claude-*` | Anthropic |
 | `gemini-*` | Google Gemini |
 | `deepseek-*` | DeepSeek |
+| `@cf/*` | Cloudflare Workers AI |
 | Custom alias | Resolved to target model first |
 | Any model in service_models | Routes to the owning service |
 
@@ -197,11 +205,11 @@ npm run dev
 │       ├── db.ts           # SQLite setup + migrations
 │       ├── proxy.ts        # OpenAI-compatible proxy router
 │       ├── api/            # REST API (services, logs, stats, settings, aliases, models)
-│       └── providers/      # Provider adapters (openai, anthropic, gemini)
+│       └── providers/      # Provider adapters (openai, anthropic, gemini, deepseek, cloudflare)
 ├── web/                    # Dashboard (React + Vite)
 │   └── src/
 │       ├── components/     # Layout, Sidebar, shadcn/ui components
-│       ├── pages/          # Dashboard, Services, Logs, Settings
+│       ├── pages/          # Dashboard, Services, Playground, Logs, Settings
 │       └── lib/            # API client, utilities
 ├── scripts/                # Build + seed scripts
 ├── DESIGN.md               # Design system reference
@@ -240,6 +248,9 @@ npm run test:all       # Everything
 |--------|------|-------------|
 | `GET` | `/api/stats` | Dashboard statistics |
 | `GET` | `/api/stats/timeseries` | 7-day request volume by provider |
+| `GET` | `/api/stats/activity` | Per-active-day volume by provider (skips idle days) |
+| `GET` | `/api/stats/heatmap` | Dense 7×24 weekday × hour request grid |
+| `GET` | `/api/stats/providers` | Requests, tokens, cost and latency per provider |
 | `GET/POST/PUT/DELETE` | `/api/services` | CRUD for AI provider services |
 | `GET/POST/DELETE` | `/api/services/:id/models` | Manage models per service |
 | `POST` | `/api/services/:id/models/fetch` | Auto-fetch models from provider API |

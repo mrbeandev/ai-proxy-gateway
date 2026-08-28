@@ -11,3 +11,6 @@ web/dist
 web/node_modules
 
 CLAUDE.md
+.agents
+.claude/
+skills-lock.json

@@ -1,7 +1,7 @@
 {
   "name": "ai-proxy-gateway",
-  "version": "0.1.6",
-  "description": "A single-command local AI proxy gateway with OpenAI-compatible endpoints for OpenAI, Anthropic, and Gemini",
+  "version": "1.0.0",
+  "description": "A single-command local AI proxy gateway with OpenAI-compatible endpoints for OpenAI, Anthropic, Gemini, DeepSeek, and Cloudflare Workers AI",
   "main": "dist/index.js",
   "bin": {
     "ai-proxy-gateway": "dist/index.js"
@@ -32,7 +32,10 @@
     "ai-gateway",
     "openai-compatible",
     "model-router",
-    "streaming"
+    "streaming",
+    "deepseek",
+    "cloudflare",
+    "workers-ai"
   ],
   "license": "MIT",
   "author": "MrBeanDev (https://github.com/mrbeandev)",

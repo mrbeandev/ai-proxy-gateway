@@ -16,6 +16,13 @@ export const api = {
   // Stats
   getStats: () => req<any>('/api/stats'),
   getTimeseries: () => req<any[]>('/api/stats/timeseries'),
+  getActivity: (days?: number) =>
+    req<{ providers: string[]; days: any[]; activeDays: number; spanDays: number }>(
+      days ? `/api/stats/activity?days=${days}` : '/api/stats/activity',
+    ),
+  getHeatmap: () =>
+    req<{ cells: { dow: number; hour: number; requests: number }[]; max: number }>('/api/stats/heatmap'),
+  getProviderSplit: () => req<any[]>('/api/stats/providers'),
 
   // Services
   getServices: () => req<any[]>('/api/services'),
@@ -43,6 +50,12 @@ export const api = {
     req<any>(`/api/services/${serviceId}/models/${id}`, { method: 'DELETE' }),
   fetchServiceModels: (serviceId: string, endpoint?: string) =>
     req<any>(`/api/services/${serviceId}/models/fetch`, { method: 'POST', body: JSON.stringify({ endpoint }) }),
+
+  // Playground — talks to the real OpenAI-compatible surface (`/v1`) rather
+  // than a dashboard-only endpoint, so it exercises the same routing, auth and
+  // logging path an external client would hit.
+  getV1Models: () =>
+    req<{ data: { id: string; owned_by: string }[] }>('/v1/models').then(r => r.data),
 
   // Settings
   getSettings: () => req<Record<string, string>>('/api/settings'),

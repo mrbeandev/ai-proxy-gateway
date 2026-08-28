@@ -88,6 +88,13 @@ function runMigrations(db: DatabaseSync) {
     CREATE INDEX IF NOT EXISTS idx_service_models_model ON service_models(model_id);
   `)
 
+  // Cloudflare Workers AI needs an account id alongside the API token.
+  try {
+    db.exec('ALTER TABLE services ADD COLUMN account_id TEXT')
+  } catch {
+    // column already exists
+  }
+
   // Seed default settings
   const insertSetting = db.prepare(`INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)`)
   const defaultSettings: [string, string][] = [
@@ -131,6 +138,14 @@ function runMigrations(db: DatabaseSync) {
     ['gemini-pro', 0.0005, 0.0015],
     ['deepseek-chat', 0.00027, 0.0011],
     ['deepseek-reasoner', 0.00055, 0.00219],
+    // Cloudflare Workers AI (per 1k tokens, converted from per-million pricing)
+    ['@cf/meta/llama-3.3-70b-instruct-fp8-fast', 0.00029, 0.00225],
+    ['@cf/meta/llama-4-scout-17b-16e-instruct', 0.00027, 0.00085],
+    ['@cf/openai/gpt-oss-120b', 0.00035, 0.00075],
+    ['@cf/openai/gpt-oss-20b', 0.0002, 0.0003],
+    ['@cf/qwen/qwen2.5-coder-32b-instruct', 0.00066, 0.001],
+    ['@cf/mistralai/mistral-small-3.1-24b-instruct', 0.00035, 0.000555],
+    ['@cf/google/gemma-3-12b-it', 0.000345, 0.000556],
   ]
   for (const [model, inp, out] of defaultPricing) {
     insertPricing.run(model, inp, out)
@@ -142,6 +157,13 @@ export const DEFAULT_MODELS: Record<string, string[]> = {
   anthropic: ['claude-opus-4', 'claude-sonnet-4', 'claude-haiku-4', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022'],
   gemini: ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'],
   deepseek: ['deepseek-chat', 'deepseek-reasoner'],
+  cloudflare: [
+    '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+    '@cf/meta/llama-4-scout-17b-16e-instruct',
+    '@cf/openai/gpt-oss-120b',
+    '@cf/openai/gpt-oss-20b',
+    '@cf/qwen/qwen2.5-coder-32b-instruct',
+  ],
 }
 
 export function seedModelsForService(db: DatabaseSync, serviceId: string, provider: string) {

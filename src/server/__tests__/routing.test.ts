@@ -11,6 +11,7 @@ function detectProvider(model: string): string | null {
   if (model.startsWith('claude-')) return 'anthropic'
   if (model.startsWith('gemini-') || model.startsWith('models/gemini')) return 'gemini'
   if (model.startsWith('deepseek-')) return 'deepseek'
+  if (model.startsWith('@cf/')) return 'cloudflare'
   return null
 }
 
@@ -40,6 +41,13 @@ describe('Model → Provider routing', () => {
   describe('DeepSeek models', () => {
     it('routes deepseek-chat', () => expect(detectProvider('deepseek-chat')).toBe('deepseek'))
     it('routes deepseek-reasoner', () => expect(detectProvider('deepseek-reasoner')).toBe('deepseek'))
+  })
+
+  describe('Cloudflare Workers AI models', () => {
+    it('routes @cf/meta/llama-3.1-8b-instruct', () => expect(detectProvider('@cf/meta/llama-3.1-8b-instruct')).toBe('cloudflare'))
+    it('routes @cf/openai/gpt-oss-120b', () => expect(detectProvider('@cf/openai/gpt-oss-120b')).toBe('cloudflare'))
+    it('routes @cf/deepseek-ai/deepseek-v4-flash-0731 to cloudflare, not deepseek', () =>
+      expect(detectProvider('@cf/deepseek-ai/deepseek-v4-flash-0731')).toBe('cloudflare'))
   })
 
   describe('Unknown models', () => {

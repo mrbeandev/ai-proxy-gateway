@@ -9,5 +9,10 @@ if (!fs.existsSync(src)) {
   process.exit(1)
 }
 
+// Clear the destination first. Vite content-hashes asset filenames, so copying
+// without removing stale files leaves every previous build's bundles behind —
+// they are unreachable (index.html names exactly one JS/CSS) but still get
+// published, bloating the tarball with dead weight.
+fs.rmSync(dest, { recursive: true, force: true })
 fs.cpSync(src, dest, { recursive: true })
 console.log('Copied web/dist → dist/public')

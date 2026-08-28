@@ -107,16 +107,45 @@ For visualizing AI logic, use a thin vertical line (2px) of `primary_dim` that c
 | `--color-anthropic` | `hsl(270,100%,75%)` | `hsl(270,60%,55%)` |
 | `--color-gemini` | `hsl(25,100%,70%)` | `hsl(25,90%,45%)` |
 
-### Highcharts Config Pattern
+### Charts — d3
 
-```js
-chart: { backgroundColor: 'transparent', style: { fontFamily: 'Inter, system-ui, sans-serif' } }
-xAxis: { lineColor: '#252626', tickColor: '#252626', labels: { style: { color: '#acabaa', fontSize: '11px' } } }
-yAxis: { gridLineColor: '#191a1a', title: { text: undefined }, labels: { style: { color: '#acabaa', fontSize: '11px' } } }
-tooltip: { backgroundColor: '#191a1a', borderColor: '#252626', borderRadius: 8, style: { color: '#e7e5e4' } }
-```
+Charts are hand-built with **d3** (`d3-scale`, `d3-shape`, `d3-array`). Highcharts
+was removed: it shipped its own visual language (borders, its own greys, its own
+tooltip chrome) that fought the no-line rule, and it could not read the OKLCH
+custom properties.
 
-Provider series colors: OpenAI `#5bdcb0`, Anthropic `#c180ff`, Gemini `#ff9f96`
+**Division of labour: d3 owns the maths, React owns the DOM.** d3 computes
+scales, stacks, arcs and bins; React renders the `<svg>`. No `d3.select()`, no
+ref mutation — charts re-render like any other component.
+
+Rules:
+
+- **Colour comes from tokens only.** `var(--color-primary)`, `providerColor(p)`.
+  Never an inline hex. `d3-interpolate` cannot parse OKLCH `var()` strings — ramp
+  **opacity** against a token colour instead of interpolating between two colours.
+- **No axis lines or chart borders** (the no-line rule). Horizontal gridlines only,
+  at `--color-border` with `stroke-opacity 0.5`.
+- **Tooltips** use `bg-popover` (surface L3) with a shadow, no border.
+- **Animate `opacity`/`transform` only**, via the `chart-fade` / `chart-rise`
+  keyframes, and skip them entirely when `usePrefersReducedMotion()` is true.
+- **Every chart needs an empty state** (`<ChartEmpty>`) — a data-less panel must
+  never render as a blank box.
+- **Never imply data you don't have.** Request Volume plots *active days* on an
+  ordinal axis (this gateway's history is bursty — 9 active days inside a 164-day
+  span) and labels the ratio in the panel header rather than drawing a calendar
+  axis full of whitespace.
+
+Provider series colours: OpenAI `#5bdcb0`, Anthropic `#c180ff`, Gemini `#ff9f96`,
+DeepSeek `#4d6bfe`, Cloudflare `#F38020` — always via `providerColor()`.
+
+| Chart | File | Endpoint |
+|-------|------|----------|
+| Shared components | `web/src/components/charts/chart-kit.tsx` | — |
+| Hooks + types | `web/src/components/charts/primitives.ts` | — |
+| Request volume (stacked area) | `charts/VolumeStream.tsx` | `/api/stats/activity` |
+| Provider split (donut) | `charts/ProviderDonut.tsx` | `/api/stats/providers` |
+| Activity (weekday × hour heatmap) | `charts/ActivityHeatmap.tsx` | `/api/stats/heatmap` |
+| Top models (bar ranking) | `charts/ModelRanking.tsx` | `/api/stats` |
 
 ### File Locations
 

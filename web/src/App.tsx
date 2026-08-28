@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Services from './pages/Services'
+import Playground from './pages/Playground'
 import Logs from './pages/Logs'
 import Settings from './pages/Settings'
 
@@ -16,6 +17,7 @@ export default function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="services" element={<Services />} />
+              <Route path="playground" element={<Playground />} />
               <Route path="logs" element={<Logs />} />
               <Route path="settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/" replace />} />

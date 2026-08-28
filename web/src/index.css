@@ -26,6 +26,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -42,6 +43,7 @@
   --color-anthropic: var(--anthropic);
   --color-gemini: var(--gemini);
   --color-deepseek: var(--deepseek);
+  --color-cloudflare: var(--cloudflare);
   /* Surface hierarchy */
   --color-surface: var(--background);
   --color-surface-low: var(--surface-low);
@@ -53,7 +55,15 @@
 /* ─── Light mode (`:root`) ─────────────────────────────────────── */
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.98 0 0);
+
+  /* Motion tokens — the three named easings used by every transition and
+     chart animation. Never use the browser default `ease`. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --success: oklch(0.62 0.17 152);
+  --background: oklch(0.965 0 0);
   --foreground: oklch(0.12 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.12 0 0);
@@ -74,7 +84,7 @@
   --surface-low: oklch(0.96 0 0);
   --surface-high: oklch(0.91 0 0);
   --surface-highest: oklch(0.87 0 0);
-  --sidebar: oklch(0.96 0 0);
+  --sidebar: oklch(0.935 0 0);
   --sidebar-foreground: oklch(0.12 0 0);
   --sidebar-primary: oklch(0.52 0.12 163);
   --sidebar-primary-foreground: oklch(1 0 0);
@@ -86,43 +96,62 @@
   --anthropic: oklch(0.58 0.19 289);
   --gemini: oklch(0.55 0.16 47);
   --deepseek: oklch(0.55 0.20 265);
+  --cloudflare: oklch(0.66 0.18 52);
 }
 
 /* ─── Dark mode (`.dark`) ──────────────────────────────────────── */
+/*
+ * Tonal ladder.
+ *
+ * NOTE: OKLCH lightness is heavily compressed at the dark end — L 0.05/0.10/0.15
+ * all render to roughly rgb(0–10), i.e. visually identical black. The values
+ * below are chosen to land on *evenly spaced sRGB grays* (~7 levels apart),
+ * which is what the eye actually reads as depth. The comment on each line is
+ * the resulting sRGB value; keep that spacing if you add surfaces.
+ *
+ *   L0 sidebar     rgb(13)  the void / chrome
+ *   L1 background  rgb(20)  main workspace
+ *   L2 card        rgb(28)  cards, detail panes
+ *   L3 muted       rgb(33)  nested wells inside cards
+ *   L4 popover     rgb(38)  floating layers
+ *   L5 accent      rgb(46)  hover / active states
+ */
 .dark {
-  --background: oklch(0.07 0 0);
-  --foreground: oklch(0.91 0.003 83);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.91 0.003 83);
-  --popover: oklch(0.14 0 0);
-  --popover-foreground: oklch(0.91 0.003 83);
+  --background: oklch(0.1913 0 0);   /* rgb(20) */
+  --foreground: oklch(0.93 0.003 83);
+  --card: oklch(0.2255 0 0);         /* rgb(28) */
+  --card-foreground: oklch(0.93 0.003 83);
+  --popover: oklch(0.2686 0 0);      /* rgb(38) */
+  --popover-foreground: oklch(0.93 0.003 83);
   --primary: oklch(0.73 0.13 163);
-  --primary-foreground: oklch(0.07 0 0);
-  --secondary: oklch(0.19 0 0);
-  --secondary-foreground: oklch(0.91 0.003 83);
-  --muted: oklch(0.16 0 0);
-  --muted-foreground: oklch(0.66 0.004 83);
-  --accent: oklch(0.19 0 0);
-  --accent-foreground: oklch(0.91 0.003 83);
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.2686 0 0);    /* rgb(38) */
+  --secondary-foreground: oklch(0.93 0.003 83);
+  --muted: oklch(0.2478 0 0);        /* rgb(33) */
+  --muted-foreground: oklch(0.70 0.004 83);
+  --accent: oklch(0.3012 0 0);       /* rgb(46) */
+  --accent-foreground: oklch(0.97 0.003 83);
   --destructive: oklch(0.7 0.18 22);
-  --border: oklch(0.30 0 0);
-  --input: oklch(0.30 0 0);
+  --success: oklch(0.74 0.17 155);
+  --border: oklch(0.3012 0 0);       /* rgb(46) */
+  --input: oklch(0.3407 0 0);        /* rgb(56) */
   --ring: oklch(0.73 0.13 163);
-  --surface-low: oklch(0.09 0 0);
-  --surface-high: oklch(0.16 0 0);
-  --surface-highest: oklch(0.19 0 0);
-  --sidebar: oklch(0.075 0 0);
-  --sidebar-foreground: oklch(0.91 0.003 83);
+  --surface-low: oklch(0.2178 0 0);  /* rgb(26) */
+  --surface-high: oklch(0.2478 0 0); /* rgb(33) */
+  --surface-highest: oklch(0.3012 0 0); /* rgb(46) */
+  --sidebar: oklch(0.1591 0 0);      /* rgb(13) */
+  --sidebar-foreground: oklch(0.93 0.003 83);
   --sidebar-primary: oklch(0.73 0.13 163);
-  --sidebar-primary-foreground: oklch(0.07 0 0);
-  --sidebar-accent: oklch(0.16 0 0);
-  --sidebar-accent-foreground: oklch(0.91 0.003 83);
-  --sidebar-border: oklch(0.30 0 0);
+  --sidebar-primary-foreground: oklch(0.12 0 0);
+  --sidebar-accent: oklch(0.2478 0 0);   /* rgb(33) */
+  --sidebar-accent-foreground: oklch(0.97 0.003 83);
+  --sidebar-border: oklch(0.2178 0 0);   /* rgb(26) */
   --sidebar-ring: oklch(0.73 0.13 163);
   --openai: oklch(0.73 0.13 163);
   --anthropic: oklch(0.73 0.19 289);
   --gemini: oklch(0.78 0.16 47);
   --deepseek: oklch(0.72 0.16 265);
+  --cloudflare: oklch(0.78 0.16 52);
 }
 
 @layer base {
@@ -140,5 +169,30 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     margin: 0;
+  }
+}
+
+/* ─── Chart animation ──────────────────────────────────────────────────────
+   Draw-on animation for the d3 charts. Only `opacity` and `transform` are
+   animated — never layout properties. Fully disabled under reduced-motion
+   (the chart components also skip applying these at the React level). */
+@keyframes chart-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes chart-rise {
+  from { opacity: 0; transform: scaleY(0.02); }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

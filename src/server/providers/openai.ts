@@ -10,13 +10,28 @@ export async function proxyOpenAI(
   baseUrl: string,
   clientRes: ServerResponse
 ): Promise<{ promptTokens: number; completionTokens: number; statusCode: number }> {
-  const url = new URL('/v1/chat/completions', baseUrl)
+  return proxyOpenAICompatible(chatReq, apiKey, new URL('/v1/chat/completions', baseUrl).toString(), clientRes)
+}
+
+/**
+ * Generic OpenAI-compatible passthrough against a fully-qualified endpoint URL.
+ * Used by OpenAI, DeepSeek and Cloudflare Workers AI.
+ */
+export async function proxyOpenAICompatible(
+  chatReq: OpenAIChatRequest,
+  apiKey: string,
+  endpoint: string,
+  clientRes: ServerResponse,
+  opts: { includeUsageOption?: boolean } = {}
+): Promise<{ promptTokens: number; completionTokens: number; statusCode: number }> {
+  const { includeUsageOption = true } = opts
+  const url = new URL(endpoint)
   const isHttps = url.protocol === 'https:'
   const reqFn = isHttps ? httpsRequest : httpRequest
 
-  // For streaming, request usage stats from OpenAI
+  // For streaming, request usage stats from the upstream (when supported)
   const body = JSON.stringify(
-    chatReq.stream
+    chatReq.stream && includeUsageOption
       ? { ...chatReq, stream_options: { include_usage: true } }
       : chatReq
   )
@@ -25,7 +40,7 @@ export async function proxyOpenAI(
     const options = {
       hostname: url.hostname,
       port: url.port || (isHttps ? 443 : 80),
-      path: url.pathname,
+      path: url.pathname + url.search,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

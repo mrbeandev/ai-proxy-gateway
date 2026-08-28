@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Layers, ScrollText, Settings, Wifi } from 'lucide-react'
+import { LayoutDashboard, Layers, MessageSquare, ScrollText, Settings, Wifi } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +15,7 @@ import {
 const nav = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/services', icon: Layers, label: 'Services' },
+  { to: '/playground', icon: MessageSquare, label: 'Playground' },
   { to: '/logs', icon: ScrollText, label: 'Logs' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
